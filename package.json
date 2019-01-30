@@ -3,11 +3,23 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "build": "babel src/index.js -o functions/index.js; babel src/lib -d functions/lib",
+    "build:db:rules": "firebase-bolt rules/database.rules.bolt",
     "deploy": "yarn deploy:server",
     "deploy:db": "cd functions; yarn deploy:db",
     "deploy:fs": "cd functions; yarn deploy:fs",
     "deploy:storage": "cd functions; yarn deploy:storage",
     "deploy:functions": "cd functions; yarn deploy:functions",
-    "deploy:server": "cd functions; yarn deploy"
+    "deploy:server": "cd functions; yarn deploy",
+    "lint": "npx eslint src"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.2.3",
+    "@babel/core": "^7.2.2",
+    "@babel/preset-env": "^7.2.3",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.12.1",
+    "eslint-plugin-promise": "^4.0.1",
+    "firebase-bolt": "^0.8.4"
   }
 }

@@ -3,6 +3,7 @@
     // Required for certain syntax usages
     "ecmaVersion": 6
   },
+  "parser": "babel-eslint",
   "plugins": [
     "promise"
   ],
