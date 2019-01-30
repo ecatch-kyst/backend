@@ -7,13 +7,18 @@ cache:
 install:
 - yarn global add codecov
 - yarn global add firebase-tools
+- yarn
+- cd functions
+- yarn
+- cd ..
 script:
 - yarn build
+- yarn build:db:rules
 deploy:
   skip_cleanup: true
+  provider: script
   script:
   - bash ./bin/deploy.sh
-after_success: 
 notifications:
   slack:
     rooms:
