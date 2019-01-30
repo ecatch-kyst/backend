@@ -1,4 +1,4 @@
-# eCatch Kyst - IT2901 [![Build status](https://api.travis-ci.org/ecatch-kyst/backend.svg?branch=master)](https://travis-ci.org/ecatch-kyst/backend)
+# eCatch Kyst - IT2901 [![Build status](https://api.travis-ci.org/ecatch-kyst/backend.svg?branch=master)](https://travis-ci.org/ecatch-kyst/backend) [![Greenkeeper badge](https://badges.greenkeeper.io/ecatch-kyst/backend.svg)](https://greenkeeper.io/)
 
 ### Client: [Dualog AS](https://dualog.com/)
 
