@@ -12,6 +12,7 @@ install:
 script:
   - yarn build
 after_success:
+  - cd ..
   - bash ./bin/deploy.sh
 
 notifications:
