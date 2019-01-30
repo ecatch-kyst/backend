@@ -1,0 +1,13 @@
+{
+  "name": "ecatch-backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "deploy": "yarn deploy:server",
+    "deploy:db": "cd functions; yarn deploy:db",
+    "deploy:fs": "cd functions; yarn deploy:fs",
+    "deploy:storage": "cd functions; yarn deploy:storage",
+    "deploy:functions": "cd functions; yarn deploy:functions",
+    "deploy:server": "cd functions; yarn deploy"
+  }
+}
