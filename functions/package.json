@@ -11,7 +11,7 @@
     "get:indexes": "firebase firestore:indexes > ../rules/firestore.indexes.json",
     "deploy:functions": "cd ..;yarn build;cd functions;firebase deploy --only functions",
     "deploy:storage": "firebase deploy --only storage",
-    "deploy": "cd ..;yarn build:db:rules;cd functions;firebase deploy --except hosting",
+    "deploy": "cd ..;yarn build:db:rules;yarn build;cd functions;firebase deploy --except hosting",
     "lint": "cd ..; yarn lint"
 
   },
