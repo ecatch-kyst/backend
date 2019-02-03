@@ -1,6 +1,7 @@
 {
   "name": "ecatch-backend",
   "version": "0.1.0",
+  "license": "GPL",
   "private": true,
   "scripts": {
     "build": "babel src/index.js -o functions/index.js; babel src/lib -d functions/lib",
