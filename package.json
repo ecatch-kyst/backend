@@ -12,7 +12,8 @@
     "deploy:storage": "cd functions; yarn deploy:storage",
     "deploy:functions": "cd functions; yarn deploy:functions",
     "deploy:server": "cd functions; yarn deploy",
-    "lint": "npx eslint src"
+    "lint": "npx eslint src",
+    "serve": "yarn build; cd functions; yarn serve"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",
