@@ -1,5 +1,5 @@
-Object.prototype.entries = function(obj) { //eslint-disable-line no-extend-native
-  let ownProps = Object.keys( obj ),
+Object.entries = function (obj) { //eslint-disable-line no-extend-native
+  let ownProps = Object.keys(obj),
     i = ownProps.length,
     resArray = new Array(i)
   while (i--)
@@ -8,9 +8,9 @@ Object.prototype.entries = function(obj) { //eslint-disable-line no-extend-nativ
 }
 
 
-Object.prototype.fromEntries = function (iterable) { //eslint-disable-line no-extend-native
+Object.fromEntries = function (iterable) { //eslint-disable-line no-extend-native
   return [...iterable]
-    .reduce((obj, { 0: key, 1: val }) => Object.assign(obj, { [key]: val }), {})
+    .reduce((obj, [key, val]) => ({...obj, [key]: val}), {})
 }
 
 export function dualogStringify(object) {

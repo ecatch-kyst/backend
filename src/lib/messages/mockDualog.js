@@ -8,7 +8,7 @@ export default async function(req) {
   const parsed = dualogParse(req.body.PlainTextNaf)
 
 
-  const response = {
+  let response = {
     TM : "RET",
     RN : parsed.RN,
     FR : "NOR-DUALOG",
@@ -36,6 +36,7 @@ export default async function(req) {
   console.log(response)
   console.log(dualogStringify(response))
 
+  response = dualogStringify(response)
 
-  return Promise.resolve(dualogStringify(response))
+  return Promise.resolve(response)
 }
