@@ -1,36 +1,41 @@
 import { functions } from "../firebase"
+import { dualogStringify, dualogParse } from "./utils"
+import { format } from "date-fns"
 
 
-export default functions.https.onRequest(async (req, res) => {
+export default async function(req) {
   // add fake validation
-  const {userId, type} = req.body
-  if(!userId){
-    return res.send("no permission")
+  const parsed = dualogParse(req.body.PlainTextNaf)
+
+
+  const response = {
+    TM : "RET",
+    RN : parsed.RN,
+    FR : "NOR-DUALOG",
+    RC : parsed.RC,
+    RS : "ACK",
+    RE : 0,
+    DA : format(Date.now(), "yyyyMMdd"),
+    TI : format(Date.now(), "HHmm")
   }
-  switch (type) {
+  switch (parsed.TM) {
   // should send NAK on parse error
+  // Add validation
   case "DEP":
-    // Check DEP format
     console.log("DEP received, parsing and checking the message.")
-    return res.send("ACK")
-
+    break
   case "DCA":
-    // Check DCA format
     console.log("DCA received, parsing and checking the message.")
-    return res.send("ACK")
-
+    break
   case "POR":
-    // Check DCA format
     console.log("POR received, parsing and checking the message.")
-    return res.send("ACK")
-
-  case "RET":
-    // Check DCA format
-    console.log("RET received, returning ACK")
-    return res.send("ACK")
-
+    break
   default:
     console.log("Unexpected request")
-    return res.send("NAK")
   }
-})
+  console.log(response)
+  console.log(dualogStringify(response))
+
+
+  return Promise.resolve(dualogStringify(response))
+}
