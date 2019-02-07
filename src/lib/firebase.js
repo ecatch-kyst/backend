@@ -2,8 +2,8 @@ import * as admin from "firebase-admin"
 import * as firebaseFunctions from "firebase-functions"
 import credentials from "../service-account-credentials.json"
 
-
-export const functions = firebaseFunctions.region("europe-west1")
+// NOTE: Change region to europe west1
+export const functions = firebaseFunctions
 
 
 const firebase = admin.initializeApp({
@@ -21,4 +21,7 @@ export const database = firebase.database()
 
 export const AUTH_USER = functions.auth.user()
 
-export const USERS_FS = firestore.collection("users")
+export const USERS_FS = firestore.collection("user")
+
+export const BOATS_FS = firestore.collection("boats")
+export const MESSAGES_FS = firestore.collection("messages")
