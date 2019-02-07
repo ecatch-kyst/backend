@@ -1,4 +1,3 @@
-import { functions } from "../firebase"
 import { dualogStringify, dualogParse } from "./utils"
 import { format } from "date-fns"
 
@@ -33,9 +32,6 @@ export default async function(req) {
   default:
     console.log("Unexpected request")
   }
-  console.log(response)
-  console.log(dualogStringify(response))
-
   response = dualogStringify(response)
 
   return Promise.resolve(response)
