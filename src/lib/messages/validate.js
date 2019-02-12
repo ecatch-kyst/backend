@@ -1,20 +1,36 @@
+import { parse, isAfter, isValid } from "date-fns"
+
 const validate = {
-  "TM": () => false,
-  "RN": v => false,
-  "RC": v => false,
-  "MA": v => false,
-  "DA": v => false,
-  "TI": v => false,
-  "PO": v => false,
-  "ZD": v => false,
-  "ZT": v => false,
-  "OB": v => false,
-  "PD": v => false,
-  "PT": v => false,
-  "LA": v => false,
-  "LO": v => false,
-  "AC": v => false,
-  "DS": v => false
+  "TM": () => null, // Message type
+  "RN": v => typeof v === "number" || v > 0 || {RE: 102}, // Message serial number
+  "RC": v => (typeof v === "string" && v.test(/^L[LKM]\d{4}$/)) || {RE: 102}, // Radio name
+  "MA": v => typeof v === "string" || {RE: 102}, // Captain's name
+  "NA": v => typeof v === "string" || {RE: 102}, // Ship's name
+  "DA": v => isValid(new Date(v)) || {RE: 102}, // Date of timestamp
+  "TI": v => isValid(new Date(v)) || {RE: 102}, // Time of timestamp
+  "PO": v =>  (typeof v === "string" && v.length === 5) || {RE: 102}, // Land & port
+  "ZD": ({ZD, ZT}) => { // Date of departure
+    const now = Date.now()
+    const date = parse(ZD+ZT, "yyyyMMddHHmm", now)
+    if (isValid(date)) {
+      return isAfter(date, now) && {RE: 151}
+    } else return {RE: 102}
+  },
+  "ZT": () => null,  // Time of departure // validating in ZD
+  "OB": v => (v === "" && v.test(/([A-Z]{3} \d* )* /)) || {RE: 102},
+  "PD": ({ZD, ZT, PD, PT}) => {  // Date of fishing start
+    const now = Date.now()
+    const departureDate = parse(ZD+ZT, "yyyyMMddHHmm", now)
+    const startDate = parse(PD+PT, "yyyyMMddHHmm", now)
+    if(isValid(departureDate) && isValid(startDate)) {
+      return isAfter(departureDate, startDate) && {RE: 152}
+    } else return {RE: 102}
+  },
+  "PT": () => null, // Time of fishing start // validating in PD
+  "LA": () => null,
+  "LO": () => null,
+  "AC": () => null,
+  "DS": () => null
 }
 
 /**
@@ -31,17 +47,19 @@ export function validateMessage(message){
   switch (message.TM) {
   case "DEP":
     // For hvert element i required
-    requiredFields.forEach(field => {
+    for (let i; i < requiredFields.length; i++) {
+      const field = requiredFields[i]
       if(!message[field]){
         console.log(`${field} not found`)
         result = {...result, RS: "NAK", RE: 104}
+        break
       } else {
-        const fieldResult = validate[field](message[field])
+        const fieldResult = validate[field](message)
         if (fieldResult) {
           result = {...result, ...fieldResult, RS: "NAK"}
         }
       }
-    })
+    }
 
     break
 

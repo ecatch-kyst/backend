@@ -1,4 +1,5 @@
-import { dualogStringify, dualogParse, validateDEP, isValidString, validateMessage } from "./utils"
+import { dualogStringify, dualogParse } from "./utils"
+import {validateMessage} from "./validate"
 import { format } from "date-fns"
 
 
