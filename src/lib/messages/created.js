@@ -21,9 +21,9 @@ export default functions.firestore.document("messages/{messageId}")
       result = dualogParse(result)
 
       await MESSAGES_FS.doc(messageId)
-        .update({acknowledged: result.RS === "ACK"})
+        .set({acknowledged: result.RS === "ACK"})
 
-      console.log("Message was sent to Dualog. Response: ", result.data)
+      console.log("Message was sent to Dualog. Response: ", result)
 
     } catch (error) {console.log(error)}
 
