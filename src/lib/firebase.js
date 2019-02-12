@@ -21,7 +21,7 @@ export const database = firebase.database()
 
 export const AUTH_USER = functions.auth.user()
 
-export const USERS_FS = firestore.collection("user")
+export const USERS_FS = firestore.collection("users")
 
 export const BOATS_FS = firestore.collection("boats")
 export const MESSAGES_FS = firestore.collection("messages")
