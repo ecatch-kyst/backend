@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 ### Added
+- validate message
+- forward message on create
 - user create event
 - user delete event
 
