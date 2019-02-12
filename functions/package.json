@@ -7,7 +7,7 @@
     "logs": "firebase functions:log",
     "clean": "rm index.js; rm -rf lib",
     "serve": "firebase serve --only functions",
-    "start": "firebase functions:shell -p 5002",
+    "start": "cd ..;yarn build;cd functions;firebase functions:shell -p 5002",
     "get:indexes": "firebase firestore:indexes > ../rules/firestore.indexes.json",
     "deploy:functions": "cd ..;yarn build;cd functions;firebase deploy --only functions",
     "deploy:storage": "firebase deploy --only storage",
