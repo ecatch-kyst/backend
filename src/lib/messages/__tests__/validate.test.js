@@ -7,16 +7,12 @@ const e = {
   old: {RE: 152}
 }
 
+const load = field => [[{[field]: "PO 200"}, e.format], [{[field]: "LKOS 2"}, e.format], [{[field]: "POR 200"}, false], [{[field]: ""}, false], [{[field]: "POR 200 POK 2000"}, false], [{[field]: "LKO 200000000"}, false]]
+const longitude = field => [[{[field]: "N100"}, e.format], [{[field]: "e100"}, e.format], [{[field]: "E 100"}, e.format], [{[field]: "E100"}, false], [{[field]: "E999"}, false]]
+const latitude = field => [[{[field]: "E100"}, e.format], [{[field]: "n100"}, e.format], [{[field]: "N 100"}, e.format], [{[field]: "N100"}, false], [{[field]: "N999"}, false]]
 const values = [
   [
-    "OB", [
-      [{OB: "PO 200"}, e.format],
-      [{OB: "LKOS 2"}, e.format],
-      [{OB: "POR 200"}, false],
-      [{OB: ""}, false],
-      [{OB: "POR 200 POK 2000"}, false],
-      [{OB: "LKO 200000000"}, false],
-    ]
+    "OB", load("OB")
   ],
   [
     "RN", [
@@ -67,22 +63,10 @@ const values = [
 
   // "PD", "PT"
   [
-    "LA", [
-      [{LA: "E100"}, e.format],
-      [{LA: "n100"}, e.format],
-      [{LA: "N 100"}, e.format],
-      [{LA: "N100"}, false],
-      [{LA: "N999"}, false]
-    ]
+    "LA", latitude("LA")
   ],
   [
-    "LO", [
-      [{LO: "N100"}, e.format],
-      [{LO: "e100"}, e.format],
-      [{LO: "E 100"}, e.format],
-      [{LO: "E100"}, false],
-      [{LO: "E999"}, false]
-    ]
+    "LO", longitude("LO")
   ],
   [
     "AC", [
@@ -152,23 +136,10 @@ const values = [
     ]
   ],
   [
-    "LT", [
-      [{LT: "N100"}, e.format],
-      [{LT: "e100"}, e.format],
-      [{LT: "E 100"}, e.format],
-      [{LT: "E100"}, false],
-      [{LT: "E999"}, false]
-
-    ]
+    "LT", longitude("LT")
   ],
   [
-    "LG", [
-      [{LG: "E100"}, e.format],
-      [{LG: "n100"}, e.format],
-      [{LG: "N 100"}, e.format],
-      [{LG: "N100"}, false],
-      [{LG: "N999"}, false]
-    ]
+    "LG", latitude("LG")
   ],
   [
     "GE", [
@@ -187,14 +158,7 @@ const values = [
     ]
   ],
   [
-    "XT", [
-      [{XT: "N100"}, e.format],
-      [{XT: "e100"}, e.format],
-      [{XT: "E 100"}, e.format],
-      [{XT: "E100"}, false],
-      [{XT: "E999"}, false]
-
-    ]
+    "XT", longitude("XT")
   ],
   [
     "XG", [
@@ -214,13 +178,7 @@ const values = [
     ]
   ],
   [
-    "CA", [
-      [{CA: "POR"}, e.format],
-      [{CA: "200"}, e.format],
-      [{CA: 200}, e.format],
-      [{CA: "LKA 2000"}, false],
-      [{CA: "PKS 200 ASK 10 KOP 5313"}, false]
-    ]
+    "CA", load("CA")
   ],
   [
     "ME", [
@@ -247,13 +205,7 @@ const values = [
     ]
   ],
   [
-    "KG", [
-      [{KG: "POR"}, e.format],
-      [{KG: "200"}, e.format],
-      [{KG: 200}, e.format],
-      [{KG: "LKA 2000"}, false],
-      [{KG: "PKS 200 ASK 10 KOP 5313"}, false]
-    ]
+    "KG", load("KG")
   ]
 ]
 
