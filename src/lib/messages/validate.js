@@ -43,7 +43,7 @@ export const validate = {
   "TS": () => null,
   "BD": ({BD}) => null, //isValid(new Date(BD)) && format, // Date of timestamp
   "BT": ({BT}) => null, //isValid(new Date(BT)) && format, // Time of timestamp
-  "ZO": ({ZO}) => (notString(ZO) || ZO.lenght !== 3) && format, // starting zone
+  "ZO": ({ZO}) => (notString(ZO) || ZO.length !== 3) && format, // starting zone
   "LT": ({LT}) => (notString(LT) || !/^[E]\d{3,}$/.test(LT)) && format,   // Longitude
   "LG": ({LG}) => (notString(LG) || !/^[N]\d{3,}$/.test(LG)) && format,   // Latitude
   "GE": ({GE}) => notNumber(GE) && format, // fishing tool
