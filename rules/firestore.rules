@@ -1,7 +1,205 @@
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{userId}/messages/{messageId} {
-      allow read: if true
+    match /users/{userId} {
+    	// can only read user if user == logged in user
+      allow read: if userId == request.auth.uid
+      match /messages/{messageId} {
+        allow read: if exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        allow create, update: if exists(/databases/$(database)/documents/users/$(request.auth.uid)) && isValidMessage(request.resource.data)
+      }
+    }
+    match /boats/{boatId}{
+    	// can only read boat if boat.userId == logged in user
+      allow read: if resource.data.userId == request.auth.uid
     }
   }
+}
+
+function isValidMessage(m) {
+  return 
+  	(m.TM == "DEP" && isValidDEP(m)) ||
+  	(m.TM == "DCA" && isValidDCA(m)) ||
+  	(m.TM == "POR" && isValidPOR(m))
+}
+
+function isValidDEP(m) {
+  return (
+    isRN(m.RN) && // Message serial number
+    isRC(m.RC) && // Radio name
+    isMA(m.MA) && // Captain's name
+    isTimestamp(m.timestamp) && // Time of sent in 
+    isPO(m.PO) && // Land & port
+    isTimestamp(m.departure) && // Time of departure
+    isFishAndWeight(m.OB) && // Fish type and weight
+    isTimestamp(m.expectedFishingStart) && // Expected time of fishing start
+    isLatLng(m.expectedFishingSpot) &&
+    isFishingActivity(m.AC) && // Fishing activity
+    isDS(m.DS) // Expected fish art
+  )
+}
+
+function isValidDCA(m) {
+  return (
+    isRN(m.RN) && // Message serial number
+    isRC(m.RC) && // Radio name
+    isMA(m.MA) && // Captain's name
+    isTimestamp(m.timestamp) && // Time of sent in 
+    isMV(m.MV) &&  // Message version
+    isAD(m.AD) &&
+    isNA(m.NA) && // Ship's name
+    isXR(m.XR) &&
+    isNumber(m.QI) && m.QI <= 7 && m.QI >= 1 && // Fishing permission
+    isFishingActivity(m.AC) && // Fishing activity
+    isTimestamp(m.fishingStart) && // Time of fishing start
+    isString(m.ZO) && ZO.length == 3 && // starting zone
+    isLatLng(m.startFishingSpot) && // Fishing starting position
+    isNumber(m.GE) && // Fishing tool
+    isNumber(m.GP) && m.GP <= 6 && m.GP >= 0 && // problem with tool
+    isLatLng(m.endFishingSpot) && // Fishing end position
+    isNumber(m.DU) && // Duration of fishing (minutes)
+    isFishAndWeight(m.CA) && // Same as OB?
+    isNumber(m.ME) && // Width of mask
+    isNumber(m.GS) && m.GS <= 4 && m.GS >= 1 && // Fishing tool specification
+    m.TS == ""
+  )
+}
+function isValidPOR(m) {
+  return (
+    isRN(m.RN) && // Message serial number
+    isRC(m.RC) && // Radio name
+    isMA(m.MA) && // Captain's name
+    isTimestamp(m.timestamp) && // Time of sent in 
+    isAD(m.AD) &&
+    isNA(m.NA) && // Ship's name
+    isXR(m.XR) &&
+    isPO(m.PO) && // Land & port
+    isTimestamp(m.fishingStart) && // Time of fishing start
+    isFishAndWeight(m.OB) && // Fish type and weight
+    isString(m.LS) && // Name of landing facility
+    isFishAndWeight(m.KG) // Same as OB?
+  )
+}
+
+function isRN(v){return isNumber(v) && v >= 0}
+function isRC(v){return isString(v)} // TODO: ADD regex
+function isMA(v){return isString(v)}
+function isAD(v){return isString(v) && v.length == 3}
+function isMV(v){return isNumber(v) && v >= 0}
+function isNA(v){return isString(v)}
+function isXR(v){return isString(v)}
+function isPO(v){return isString(v) && v.length == 5}
+function isDS(v){return isString(v) && v.length == 3}
+
+function isLatLng(l) {return l is latlng}
+
+function isString(s) {return s is string && s.length > 0}
+
+function isNumber(n) {return n is number}
+
+function isTimestamp(t) {return t is timestamp}
+
+function isFishAndWeight(f) {
+  return f.keys().hasOnly([
+    "SQE", // Akkar - Flying squid - Todarodes sagittatus sagittat
+    "ALB", // Albakor - Albacore - Thunnus alalunga
+    "ANE", // Ansjos - Anchovy - Engraulis encrasicolus
+    "ANS", // Antarctic silverfish* - Ant. silverfish - Pleuragramma antarcticum
+    "SRR", // Antarctic starry skate* - Ant. starry skate - Raja georgiana
+    "KCV", // Antarctic stone crab* - Ant. stone crab - Paralomis spinosissima
+    "KRI", // Antarktisk krill - Ant. Krill - Euphausia superba
+    "TOA", // Antarktisk tannfisk - Toothfish - Dissostichus mawsoni
+    "TOT", // Antarktisk tannfisk, uspes. - Toothfish, nei - Dissostichus spp
+    "USB", // Berggylt - Ballan wrasse - Labrus bergylta
+    "TBR", // Bergnebb - Gold-sinny wrasse - Ctenolabrus rupestris
+    "SQC", // Blekksprut - Common squids nei - Loglio spp.
+    "CEP", // Blekksprut uspes. - Cephalopods - Cephalopoda
+    "BRF", // Blåkjeft - Bluemouth - Helicolenus dactylopterus
+    "GHL", // Blåkveite - Greenland halibut - Reinhardtius hippoglossoides
+    "BLI", // Blålange - Blue ling - Molva dypterygia
+    "USI", // Blåstal/ Rødnebb - Cuckoo wrasse - Labrus (bimaculatus) mixtus
+    "CAB", // Blåsteinbit - North. wolffish - Anarhichas denticulatus
+    "CYH", // Blåvinget havmus - Large-eyed rabbitfish - Hydrolagus mirabilis
+    "MON", // Breiflabb - Angler (= Monk) - Lophius piscatorius
+    "SPR", // Brisling - European sprat - Sprattus sprattus
+    "USK", // Brosme - Tusk(= Cusk) - Brosme brosme
+    "BSK", // Brugde - Basking shark - Cetorhinus maximus
+    "CYA", // Brun havmus - Smalleyed ratfish - Hydrolagus affinis
+    "AKL", // Brungylt - Scale-rayed wrasse - Acantholabrus palloni
+    "GUQ", // Brunhå - Shark gulper, leafscale - Centrophorus squamosus
+    "BRW", // Brydehval - Bryde?s whale - Balaenoptera edeni
+    "SKJ", // Bukstripet pelamide - Skipjack tuna - Katsuwonus pelamis
+    "CYP", // Bunnhå - Longnose velvet dogfish - Centroscymnus crepidater
+    "RJA", // Burton-skate - White skate - Rostroraja (Raja) alba
+    "AJC", // Butare - Babberlocks - Alaria esculenta
+    "YTK" // Butt sandskjell - Blunt gaper - Mya truncata
+  ])
+}
+function isFishingActivity(a){
+  return a in [
+    "FIS", // Fishing    Fiske
+    "REL", // Catch Relocation (pumping)    Fangst relokalisering (pumping)
+    "SCR", // Scientific Research    Vitenskapelig forskning
+    "STE", // Steaming    Stimer
+    "TRX", // Transhipping    Omlasting
+    "SET", // Setting Gear    Setting av redskap
+    "ANC", // Anchoring    Ankring
+    "DRI", // Drifting    Driving
+    "GUD", // Guard ship    Vaktskip
+    "HAU", // Hauling    Transport
+    "PRO", // Processing    Produksjon
+    "INW", // Inactivity due to weather conditions    Ingen aktivitet
+    "SEF", // Searching for fish when no gear is used    Leting etter fisk
+    "OTH" // Other    Annet
+  ]
+}
+
+function isPort(p){
+  return p in [
+    "DKFMO", // Femø   	 
+    "DKFRC", // Fredericia   	 
+    "DKFRK", // Føvling    5527N    00857E
+    "DKFUH", // Fur   	 
+    "DKFYH", // Fynshav    5458N    00958E
+    "DKGDM", // Gudhjem    5513N    01458E
+    "DKBGO", // Baagø   	 
+    "DKBGZ", // Bogense    5534N    01005E
+    "DKBLA", // Blavand    5533N    00808E
+    "DKBLB", // Ballebro   	 
+    "DKBLU", // Baelum    5649N    01006E
+    "DKBOG", // Bogo By    5456N    01203E
+    "DKAAB", // Åbenrå    5502N    00926E
+    "DKAAL", // Aalborg   	 
+    "DKAAR", // Aarhus    5609N    01013E
+    "DKAGE", // Allinge    5516N    01448E
+    "DKAGH", // Agger Havn   	 
+    "DKAGO", // Agersø   	 
+    "DKAK3", // Åkirkeby    5504N    01456E
+    "DKANH", // Anholt   	 
+    "DKARD", // Årosund    5515N    00943E
+    "DKARK", // Ærøskøbing   	 
+    "DKARO", // Åro    5516N    00945E
+    "DKASA", // Asaa    5709N    01025E
+    "DKASH", // Aggersund   	 
+    "DKASK", // Askø   	 
+    "DKASN", // Assens   	 
+    "DKASV", // Asnæsværkets Havn   	 
+    "DKAUB", // Augustenborg   	 
+    "DKAVE", // Avedøreværkets Havn   	 
+    "DKAVK", // Avernak By    5502N    01016E
+    "DKAVN" // Avernakke Havn    5518N    01047E
+  ]
+}
+
+function isFishingTool(t){
+  return t in [
+    "FPO",// Teiner    Traps - pots
+    "GEN",// Garn    Gillnets and entangling nets
+    "DRB",// Skrape, mekanisert    Harvesting machines (not specified)
+    "LL ",// Liner    Longlines (not specified)
+    "OTB",// Bunntrål, otter    Bottom trawls - otter trawls
+    "TBS",// Bunntrål, reker    Bottom trawls - prawns
+    "PS1",// Snurpenot/ringnot    Surrounding nets-purse seines
+    "SSC",// Snurrevad    Scottish seines - scottish
+    "OTM"// Flytetrål    Midwater otter trawl
+  ]
 }
