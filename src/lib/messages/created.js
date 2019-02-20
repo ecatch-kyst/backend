@@ -3,7 +3,7 @@ import { MESSAGES_FS, functions } from "../firebase"
 import { dualogStringify, dualogParse } from "./utils"
 import { dualog } from "."
 
-export default functions.firestore.document("messages/{messageId}")
+export default functions.firestore.document("users/{userId}/messages/{messageId}")
   .onCreate(async (snap, {params: {messageId}}) => {
 
     try {
