@@ -1,5 +1,5 @@
 import { parse, isAfter, isValid } from "date-fns"
-import { DEPFIELDS, DCAFIELDS, PORFIELDS, VALIDTM } from "../../constants"
+import { fields, VALIDTM } from "../constants"
 
 const format = {RE: 102}
 const notString = e => typeof e !== "string"
@@ -11,8 +11,8 @@ export const validate = {
   "RC": ({RC}) => (notString(RC) || !(/^L[LKM]\d{4}$/.test(RC))) && format, // Radio name
   "MA": ({MA}) => notString(MA) && format, // Captain's name
   "NA": ({NA}) => (notString(NA) || NA === "") && format, // Ship's name
-  "DA": ({DA}) => null, //!isValid(new Date(DA)) && format, // Date of timestamp
-  "TI": ({TI}) => null, //!isValid(new Date(TI)) && format, // Time of timestamp
+  "DA": ({DA}) => !isValid(parse(DA, "yyyyMMdd")) && format, // Date of timestamp
+  "TI": ({TI}) => !isValid(parse(TI, "HHmm")) && format, // Date of timestamp
   "PO": ({PO}) =>  (notString(PO) && PO.length !== 5) && format, // Land & port
   "ZD": ({ZD, ZT}) => { // Date of departure
     const now = Date.now()
@@ -41,8 +41,8 @@ export const validate = {
   "XR": ({XR}) => (notString(XR) || XR === "") && format,
   "QI": ({QI}) => (notNumber(QI) || QI > 7 || QI < 0) && format, // Fishing permission int[1..7]
   "TS": () => null,
-  "BD": ({BD}) => null, //isValid(new Date(BD)) && format, // Date of timestamp
-  "BT": ({BT}) => null, //isValid(new Date(BT)) && format, // Time of timestamp
+  "BD": ({BD}) => !isValid(parse(BD, "yyyyMMdd")) && format, // Date of timestamp
+  "BT": ({BT}) => !isValid(parse(BT, "HHmm")) && format, // Time of timestamp
   "ZO": ({ZO}) => (notString(ZO) || ZO.length !== 3) && format, // starting zone
   "LT": ({LT}) => (notString(LT) || !/^[E]\d{3,}$/.test(LT)) && format,   // Longitude
   "LG": ({LG}) => (notString(LG) || !/^[N]\d{3,}$/.test(LG)) && format,   // Latitude
@@ -64,9 +64,9 @@ export const validate = {
  * @param {string} type
  */
 function checkMessage(type){
-  const fields = type + "FIELDS"
-  for (let i = 0; i < fields.length; i++) {
-    const field = fields[i]
+  const requiredFields = [...fields.common, ...fields[type]]
+  for (let i = 0; i < requiredFields.length; i++) {
+    const field = requiredFields[i]
     if(!message[field]){
       // Check if all required fields are present
       console.log(`${field} not found`)

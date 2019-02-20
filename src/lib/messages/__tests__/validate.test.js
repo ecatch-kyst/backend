@@ -36,16 +36,16 @@ const values = [
       [{MA: "Ola Nordmann"}, false],
     ]
   ],
-  /* [
+  [
     "DA", [
-      []
+      [{DA: "20000212"}, false]
     ]
   ],
   [
     "TI", [
       []
     ]
-  ], */
+  ],
   [
     "PO", [
       [{PO: 123}, e.format],
@@ -161,13 +161,7 @@ const values = [
     "XT", longitude("XT")
   ],
   [
-    "XG", [
-      [{XG: "E100"}, e.format],
-      [{XG: "n100"}, e.format],
-      [{XG: "N 100"}, e.format],
-      [{XG: "N100"}, false],
-      [{XG: "N999"}, false]
-    ]
+    "XG", latitude("XG")
   ],
   [
     "DU", [
@@ -210,7 +204,6 @@ const values = [
 ]
 
 describe("Dualog validation", () => {
-
   values.forEach(([k, v]) => {
     describe(`(${k}) function`, () => {
       v.forEach(([arg, expected]) => {
