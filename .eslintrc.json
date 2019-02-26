@@ -9,6 +9,11 @@
   ],
   "extends": "eslint:recommended",
   "rules": {
+    "indent": ["error", 2],
+    "no-multiple-empty-lines":"error",
+    "dot-location":["error", "property"],
+    "no-trailing-spaces":"error",
+    "semi": [2, "never"],
     // Removed rule "disallow the use of console" from recommended eslint rules
     "no-console": "off",
 

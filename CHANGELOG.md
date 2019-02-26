@@ -3,6 +3,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 ### Added
+- DEP message is handled in every step (firestore, cloud function and dualog mock)
+- firestore rules
+- changes to message creation according to frontend changes
+- validate message
+- forward message on create
 - user create event
 - user delete event
 
