@@ -8,32 +8,36 @@ const notNumber = e => typeof e !== "number"
 export const validate = {
   "TM": () => null, // Message type
   "RN": ({RN}) => (notNumber(RN) || RN < 0) && format, // Message serial number
-  "RC": ({RC}) => (notString(RC) || !(/^L[LKM]\d{4}$/.test(RC))) && format, // Radio name
+  "RC": ({RC}) => (notString(RC) || !(/^L?[LKM]\d{3,4}$/.test(RC))) && format, // Radio name
   "MA": ({MA}) => notString(MA) && format, // Captain's name
   "NA": ({NA}) => (notString(NA) || NA === "") && format, // Ship's name
-  "DA": ({DA}) => !isValid(parse(DA, "yyyyMMdd")) && format, // Date of timestamp
-  "TI": ({TI}) => !isValid(parse(TI, "HHmm")) && format, // Date of timestamp
+  "DA": ({DA}) => !isValid(parse(DA, "yyyyMMdd", Date.now())) && format, // Date of timestamp
+  "TI": ({TI}) => !isValid(parse(TI, "HHmm", Date.now())) && format, // Date of timestamp
   "PO": ({PO}) =>  (notString(PO) && PO.length !== 5) && format, // Land & port
-  "ZD": ({ZD, ZT}) => { // Date of departure
+  "ZD": () => null, // REVIEW:
+  /* { // Date of departure
     const now = Date.now()
     const date = parse(ZD+ZT, "yyyyMMddHHmm", now)
+    console.log(ZD, ZT, date)
     if (isValid(date)) {
       return isAfter(date, now) && {RE: 151}
     } else return format
-  },
-  "ZT": () => null,  // Time of departure // validating in ZD
+  }, */
+  "ZT": () => null,  // REVIEW: Time of departure // validating in ZD
   "OB": ({OB}) => (notString(OB) || !OB.replace(/ (\d)/g, "$1").split(" ").every(e => /^[A-Z]{3}\d+$/.test(e))) && OB !== "" && format,
-  "PD": ({ZD, ZT, PD, PT}) => {  // Date of fishing start
+  "PD": ({ZD, ZT, PD, PT}) => null, // REVIEW:
+  /* {  // Date of fishing start
     const now = Date.now()
     const departureDate = parse(ZD+ZT, "yyyyMMddHHmm", now)
     const startDate = parse(PD+PT, "yyyyMMddHHmm", now)
     if(isValid(departureDate) && isValid(startDate)) {
       return isAfter(departureDate, startDate) && {RE: 152}
     } else return format
-  },
+  }, */
   "PT": () => null,   // Time of fishing start // validating in PD
-  "LA": ({LA}) => (notString(LA) || !/^[N]\d{3,}$/.test(LA)) && format,   // Latitude
-  "LO": ({LO}) => (notString(LO) || !/^[E]\d{3,}$/.test(LO)) && format,   // Longitude
+  // REVIEW: LA and LO format
+  "LA": ({LA}) => (notString(LA) || !/^[N]\d*[.]\d*$/.test(LA)) && format,   // Latitude
+  "LO": ({LO}) => (notString(LO) || !/^[E]\d*[.]\d*$/.test(LO)) && format,   // Longitude
   "AC": ({AC}) => (notString(AC) || AC.length !== 3) && format,   // Fishing activity
   "DS": ({DS}) => (notString(DS) || DS.length !== 3) && format,    // Planned firh art
   "MV": ({MV}) => (notNumber(MV) || MV < 0) && format,  // Message version
@@ -60,26 +64,28 @@ export const validate = {
 }
 
 /**
- *
+ * Helper function for validateMessage
  * @param {string} type
  */
-function checkMessage(type){
-  const requiredFields = [...fields.common, ...fields[type]]
+function checkMessage(message){
+  const requiredFields = [...fields.common, ...fields[message.TM]]
+  console.log(`Checking message`)
   for (let i = 0; i < requiredFields.length; i++) {
     const field = requiredFields[i]
-    if(!message[field]){
-      // Check if all required fields are present
+    if(!message[field]){ // true if field is missing
       console.log(`${field} not found`)
-      result = {...result, RS: "NAK", RE: 104}
-      break
+      return  {RS: "NAK", RE: 104}
     } else {
       // Check if all fields are filled out correctly
-      const fieldResult = validate[field](message)
-      if (fieldResult) {
-        result = {...result, ...fieldResult, RS: "NAK"}
-      }
+      console.log(`Validating ${field}`)
+
+      const error = validate[field](message)
+      console.log(`error is: ${JSON.stringify(error)}`)
+
+      if (error) return {...error, RS: "NAK"}
     }
   }
+  return {}
 }
 
 /**
@@ -87,17 +93,17 @@ function checkMessage(type){
  * @param {object} message
  */
 export function validateMessage(message){
-  console.log(`Validating DEP message ${message}`)
+  const {TM} = message
+  console.log(`Validating ${TM} message ${JSON.stringify(message)}`)
   let result = {}
-  const {TM, RS} = message
-  if(TM in VALIDTM){
-    checkMessage(TM)
+  if(VALIDTM.includes(TM)){
+    result = checkMessage(message)
   } else {
-    result = {...result, RE: 530, RS: "NAK"}
+    result = {RE: 530, RS: "NAK"}
   }
   console.log("Field checking is done")
 
-  if (RS === "NAK") return result
+  if (result.RS === "NAK") return result
   else return {RS: "ACK"}
 
 }
