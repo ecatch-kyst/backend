@@ -1,6 +1,6 @@
 {
   "name": "ecatch-backend",
-  "version": "0.1.0",
+  "version": "1.0.0-beta2",
   "license": "GPL",
   "private": true,
   "scripts": {
@@ -12,15 +12,26 @@
     "deploy:storage": "cd functions; yarn deploy:storage",
     "deploy:functions": "cd functions; yarn deploy:functions",
     "deploy:server": "cd functions; yarn deploy",
-    "lint": "npx eslint src"
+    "lint": "npx eslint src",
+    "serve": "yarn build; cd functions; yarn serve",
+    "test:watch": "yarn test --watch",
+    "test": "jest"
   },
   "devDependencies": {
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.2.2",
     "@babel/preset-env": "^7.2.3",
+    "@google-cloud/functions-emulator": "^1.0.0-beta.5",
     "babel-eslint": "^10.0.1",
     "eslint": "^5.12.1",
     "eslint-plugin-promise": "^4.0.1",
-    "firebase-bolt": "^0.8.4"
+    "firebase-bolt": "^0.8.4",
+    "firebase-tools": "^6.3.1"
+  },
+  "dependencies": {
+    "axios": "^0.18.0",
+    "date-fns": "^2.0.0-alpha.27",
+    "firebase-admin": "^7.0.0",
+    "utm": "^1.1.1"
   }
 }

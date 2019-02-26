@@ -7,20 +7,25 @@
     "logs": "firebase functions:log",
     "clean": "rm index.js; rm -rf lib",
     "serve": "firebase serve --only functions",
-    "start": "firebase experimental:functions:shell",
+    "start": "cd ..;yarn build;cd functions;firebase functions:shell -p 5002",
     "get:indexes": "firebase firestore:indexes > ../rules/firestore.indexes.json",
     "deploy:functions": "cd ..;yarn build;cd functions;firebase deploy --only functions",
     "deploy:storage": "firebase deploy --only storage",
     "deploy": "cd ..;yarn build:db:rules;yarn build;cd functions;firebase deploy --except hosting",
     "lint": "cd ..; yarn lint"
-
   },
   "dependencies": {
+    "axios": "^0.18.0",
+    "date-fns": "^2.0.0-alpha.27",
     "firebase-admin": "~7.0.0",
-    "firebase-functions": "^2.1.0"
+    "firebase-functions": "^2.1.0",
+    "utm": "^1.1.1"
   },
   "devDependencies": {
     "firebase-bolt": "^0.8.4"
   },
-  "private": true
+  "private": true,
+  "engines": {
+    "node": "6"
+  }
 }
