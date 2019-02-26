@@ -1,11 +1,10 @@
 service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId} {
-    	// can only read user if user == logged in user
-      allow read: if userId == request.auth.uid
-      match /messages/{messageId} {
-        allow read: if exists(/databases/$(database)/documents/users/$(request.auth.uid))
-        allow create, update: if exists(/databases/$(database)/documents/users/$(request.auth.uid)) && isValidMessage(request.resource.data)
+      match /messages/{message} {
+        allow read, create, update: if isRightUser(userId)
+        allow create, update: if isValidMessage(request.resource.data)
+        allow delete: if false
       }
     }
     match /boats/{boatId}{
@@ -13,6 +12,10 @@ service cloud.firestore {
       allow read: if resource.data.userId == request.auth.uid
     }
   }
+}
+
+function isRightUser(uid) {
+	return uid == request.auth.uid
 }
 
 function isValidMessage(m) {
@@ -24,9 +27,10 @@ function isValidMessage(m) {
 
 function isValidDEP(m) {
   return (
-    isRN(m.RN) && // Message serial number
-    isRC(m.RC) && // Radio name
-    isMA(m.MA) && // Captain's name
+  	m.hasOnly(["created", "TM", "timestamp", "MA", "AC", "DS", "PO", "departure", "expectedFishingSpot", "expectedFishingStart", "OB"]) &&
+    //isRN(m.RN) && // Message serial number
+    //isRC(m.RC) && // Radio name
+    //isMA(m.MA) && // Captain's name
     isTimestamp(m.timestamp) && // Time of sent in 
     isPO(m.PO) && // Land & port
     isTimestamp(m.departure) && // Time of departure
@@ -40,9 +44,10 @@ function isValidDEP(m) {
 
 function isValidDCA(m) {
   return (
-    isRN(m.RN) && // Message serial number
-    isRC(m.RC) && // Radio name
-    isMA(m.MA) && // Captain's name
+  	//m.hasOnly([""])
+    //isRN(m.RN) && // Message serial number
+    //isRC(m.RC) && // Radio name
+    //isMA(m.MA) && // Captain's name
     isTimestamp(m.timestamp) && // Time of sent in 
     isMV(m.MV) &&  // Message version
     isAD(m.AD) &&
@@ -65,9 +70,10 @@ function isValidDCA(m) {
 }
 function isValidPOR(m) {
   return (
-    isRN(m.RN) && // Message serial number
-    isRC(m.RC) && // Radio name
-    isMA(m.MA) && // Captain's name
+  	//m.hasOnly([""])
+    //isRN(m.RN) && // Message serial number
+    //isRC(m.RC) && // Radio name
+    //isMA(m.MA) && // Captain's name
     isTimestamp(m.timestamp) && // Time of sent in 
     isAD(m.AD) &&
     isNA(m.NA) && // Ship's name
