@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+### Fixed
+- RN is now added to messages
 
 ## [1.0.0-beta2] - 2019-02-26
 ### Added
