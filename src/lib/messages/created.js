@@ -84,6 +84,7 @@ export default functions.firestore.document("users/{userId}/messages/{messageId}
 
       await USERS_FS.doc(userId).collection("messages").doc(messageId)
         .update({
+          RN,
           acknowledged: result.RS === "ACK",
           error: result.RE,
           dualogTimestamp
