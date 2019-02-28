@@ -2,6 +2,10 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+### Added
+- mock boat created for each registered user
+- when deleting a user, delete its boat and corresponding messages
+
 ### Fixed
 - RN is now added to messages
 

@@ -24,4 +24,4 @@ export const AUTH_USER = functions.auth.user()
 export const USERS_FS = firestore.collection("users")
 
 export const BOATS_FS = firestore.collection("boats")
-export const MESSAGES_FS = firestore.collection("messages")
+export const MESSAGES_FS = userId => USERS_FS.doc(userId).collection("messages")
