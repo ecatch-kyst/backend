@@ -67,6 +67,17 @@ export default functions.firestore.document("users/{userId}/messages/{messageId}
           OB: Object.entries(m.OB).map(([k, v]) => [k, v].join(" ")).join(" ")
         }
         break
+      case "POR": {
+        message = {
+          ...message,
+          NA: boat.NA,
+          XR: boat.NA, AD, PO,
+          PD: convertDate(portArrival),
+          PT: convertTime(portArrival),
+          OB, LS, KG
+        }
+      }
+        break
 
       default:
         break
