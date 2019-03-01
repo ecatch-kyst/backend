@@ -69,13 +69,17 @@ export default functions.firestore.document("users/{userId}/messages/{messageId}
         }
         break
       case "POR": {
+        const {PO, portArrival, LS,} = m
         message = {
           ...message,
           NA: boat.NA,
-          XR: boat.NA, AD, PO,
+          XR: boat.NA,
+          PO,
           PD: convertDate(portArrival),
           PT: convertTime(portArrival),
-          OB, LS, KG
+          OB: stringifyCatch(m.OB),
+          LS,
+          KG: stringifyCatch(m.KG)
         }
       }
         break
