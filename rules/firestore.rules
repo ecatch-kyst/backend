@@ -70,16 +70,15 @@ function isValidDCA(m) {
 }
 function isValidPOR(m) {
   return (
-  	//m.hasOnly([""])
+  	m.hasOnly(["timestamp", "TM", "AD", "PO", "portArrival", "OB", "LS", "KG"]) &&
     //isRN(m.RN) && // Message serial number
     //isRC(m.RC) && // Radio name
     //isMA(m.MA) && // Captain's name
     isTimestamp(m.timestamp) && // Time of sent in 
     isAD(m.AD) &&
-    isNA(m.NA) && // Ship's name
     isXR(m.XR) &&
     isPO(m.PO) && // Land & port
-    isTimestamp(m.fishingStart) && // Time of fishing start
+    isTimestamp(m.portArrival) && // Time of fishing start
     isFishAndWeight(m.OB) && // Fish type and weight
     isString(m.LS) && // Name of landing facility
     isFishAndWeight(m.KG) // Same as OB?
