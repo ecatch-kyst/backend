@@ -12,6 +12,8 @@ Object.entries = function (obj) { //eslint-disable-line no-extend-native
     resArray[i] = [ownProps[i], obj[ownProps[i]]]
   return resArray
 }
+function convertDate(e){return format(e.toDate(), "yyyyMMdd")}
+function convertTime(e){return format(e.toDate(), "HHmm")}
 
 
 export default functions.firestore.document("users/{userId}/messages/{messageId}")
@@ -41,8 +43,8 @@ export default functions.firestore.document("users/{userId}/messages/{messageId}
         AD: "NOR",
         RC: boat.RC,
         MA: m.MA,
-        DA: format(m.created.toDate(), "yyyyMMdd"),
-        TI: format(m.created.toDate(), "HHmm")
+        DA: convertDate(m.created),
+        TI: convertTime(m.created)
       }
 
 
@@ -54,10 +56,10 @@ export default functions.firestore.document("users/{userId}/messages/{messageId}
           NA: boat.NA,
           XR: boat.XR,
           PO: m.PO,
-          ZD: format(m.departure.toDate(), "yyyyMMdd"),
-          ZT: format(m.departure.toDate(), "HHmm"),
-          PD: format(m.expectedFishingStart.toDate(), "yyyyMMdd"),
-          PT: format(m.expectedFishingStart.toDate(), "HHmm"),
+          ZD: convertDate(m.departure),
+          ZT: convertTime(m.departure),
+          PD: convertDate(m.expectedFishingStart),
+          PT: convertTime(m.expectedFishingStart),
           LA: "N"+wgs.northing,
           LO: "E"+wgs.easting,
           AC: m.AC,
