@@ -14,6 +14,7 @@ Object.entries = function (obj) { //eslint-disable-line no-extend-native
 }
 function convertDate(e){return format(e.toDate(), "yyyyMMdd")}
 function convertTime(e){return format(e.toDate(), "HHmm")}
+function stringifyCatch(c){return Object.entries(c).map(([k, v]) => [k, v].join(" ")).join(" ")}
 
 
 export default functions.firestore.document("users/{userId}/messages/{messageId}")
@@ -64,7 +65,7 @@ export default functions.firestore.document("users/{userId}/messages/{messageId}
           LO: "E"+wgs.easting,
           AC: m.AC,
           DS: m.DS,
-          OB: Object.entries(m.OB).map(([k, v]) => [k, v].join(" ")).join(" ")
+          OB: stringifyCatch(m.OB)
         }
         break
       case "POR": {
