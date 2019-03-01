@@ -19,6 +19,7 @@ export default functions.firestore.document("users/{userId}/messages/{messageId}
 
     try {
       let m = snap.data()
+      
       console.log(`${m.TM} message created`)
 
       let boat = {}
@@ -40,18 +41,17 @@ export default functions.firestore.document("users/{userId}/messages/{messageId}
         RN,
         AD: "NOR",
         RC: boat.RC,
+        NA: boat.NA,
         MA: m.MA,
         DA: format(m.created.toDate(), "yyyyMMdd"),
         TI: format(m.created.toDate(), "HHmm")
       }
-
-
+      
       switch (m.TM) {
       case "DEP":
         wgs = utm.fromLatLon(m.expectedFishingSpot.latitude, m.expectedFishingSpot.longitude)
         message = {
           ...message,
-          NA: boat.NA,
           XR: boat.XR,
           PO: m.PO,
           ZD: format(m.departure.toDate(), "yyyyMMdd"),
@@ -64,6 +64,37 @@ export default functions.firestore.document("users/{userId}/messages/{messageId}
           DS: m.DS,
           OB: Object.entries(m.OB).map(([k, v]) => [k, v].join(" ")).join(" ")
         }
+        break
+
+        case "DCA": {
+        const {NA, XR, MV, AD, QI, AC, TS, ZO, GE, GP, DU, CA, ME, GS} = m
+        ["TM", "RN", "RC", "MA", /*"DA", "TI" created*/, "MV", "AD", "NA", "XR", "QI", "AC", "TS", "BD", "BT", "ZO", "LT", "LG", "GE", "GP", "XT", "XG", "DU", "CA", "ME", "GS"]
+        messages = {
+          ...message,
+          NA: boat.NA,
+          XR: boat.XR,
+          //should destrruce but dont know what t o do with "rest"
+          MV,
+          AD,
+          QI,
+          AC,
+          TS,
+          BD: format(m.fishingStart.toDate(), "yyyyMMdd"),
+          BT: format(m.fishingStart.toDate(), "HHmm"),
+          ZO,
+          LT: "", //Sjekk format
+          LG: "", //Sjekk format
+          GE,
+          GP,
+          XT: "", //Sjekk format
+          XG: "", //Sjekk format
+          DU,
+          CA,
+          ME,
+          GS
+
+        }
+      }
         break
 
       default:
