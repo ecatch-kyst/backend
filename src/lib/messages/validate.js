@@ -4,6 +4,7 @@ import { fields, VALIDTM } from "../constants"
 const format = {RE: 102}
 const notString = e => typeof e !== "string"
 const notNumber = e => typeof e !== "number"
+const decimalLatLng = /^[+-]\d{1,3}[.]\d+$/
 
 export const validate = {
   "TM": () => null, // Message type
@@ -48,12 +49,12 @@ export const validate = {
   "BD": ({BD}) => !isValid(parse(BD, "yyyyMMdd")) && format, // Date of timestamp
   "BT": ({BT}) => !isValid(parse(BT, "HHmm")) && format, // Time of timestamp
   "ZO": ({ZO}) => (notString(ZO) || ZO.length !== 3) && format, // starting zone
-  "LT": ({LT}) => (notString(LT) || !/^[E]\d{3,}$/.test(LT)) && format,   // Longitude
-  "LG": ({LG}) => (notString(LG) || !/^[N]\d{3,}$/.test(LG)) && format,   // Latitude
+  "LT": ({LT}) => (notString(LT) || !decimalLatLng.test(LT)) && format,   // Longitude
+  "LG": ({LG}) => (notString(LG) || !decimalLatLng.test(LG)) && format,   // Latitude
   "GE": ({GE}) => notNumber(GE) && format, // fishing tool
   "GP": ({GP}) => (notNumber(GP) || GP > 7 || GP < 0) && format, // problem with tool
-  "XT": ({XT}) => (notString(XT) || !/^[E]\d{3,}$/.test(XT)) && format,   // Longitude
-  "XG": ({XG}) => (notString(XG) || !/^[N]\d{3,}$/.test(XG)) && format,   // Latitude
+  "XT": ({XT}) => (notString(XT) || !decimalLatLng.test(XT)) && format,   // Longitude
+  "XG": ({XG}) => (notString(XG) || !decimalLatLng.test(XG)) && format,   // Latitude
   "DU": ({DU}) => (notNumber(DU) || DU <= 0) && format, // Lengt of fishing (minutes)
   "CA": ({CA}) => (notString(CA) || !CA.replace(/ (\d)/g, "$1").split(" ").every(e => /^[A-Z]{3}\d+$/.test(e))) && CA !== "" && format, // Same as OB?
   "ME": ({ME}) => (notNumber(ME) || ME <= 0) && format, //width of mask
