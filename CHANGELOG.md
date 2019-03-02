@@ -3,8 +3,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 ### Added
+- POR message created and being sent to Dualog mock
 - mock boat created for each registered user
 - when deleting a user, delete its boat and corresponding messages
+
+### Changed
+- Firestore rules modified to support POR messages
 
 ### Fixed
 - RN is now added to messages
