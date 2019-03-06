@@ -17,7 +17,7 @@ function convertTime(e){return format(e.toDate(), "HHmm")}
 function stringifyCatch(c){return Object.entries(c).map(([k, v]) => [k, v].join(" ")).join(" ")}
 
 
-export default functions.firestore.document("users/{userId}/messages/{messageId}")
+export const message = functions.firestore.document("users/{userId}/messages/{messageId}")
   .onCreate(async (snap, {params: {userId, messageId}}) => {
 
     try {
@@ -47,6 +47,8 @@ export default functions.firestore.document("users/{userId}/messages/{messageId}
         DA: convertDate(m.created),
         TI: convertTime(m.created)
       }
+
+      console.log(`${message} : the message`)
 
 
       switch (m.TM) {
