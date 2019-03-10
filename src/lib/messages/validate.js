@@ -79,10 +79,10 @@ function checkMessage(message){
       // Check if all fields are filled out correctly
       console.log(`Validating ${field}`)
 
-      const error = validate[field](message)
-      console.log(`error is: ${JSON.stringify(error)}`)
+      const correct = validate[field](message)
+      console.log(`Messege is: ${JSON.stringify(correct)}`)
 
-      if (error) return {...error, RS: "NAK"}
+      if (!correct) return {...correct, RS: "NAK"}
     }
   }
   return {}
