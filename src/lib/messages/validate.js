@@ -6,7 +6,7 @@ const isString = e => typeof e === "string"
 const isNumber = e => typeof e === "number"
 
 export const validate = {
-  "TM": () => null, // Message type
+  "TM": ({TM}) => ['DEP', 'DCA', 'POR'].includes(TM) ? true : format, // Message type
   "RN": ({RN}) => (isNumber(RN) && RN > 0) ? true : format, // Message serial number
   "RC": ({RC}) => (isString(RC) && (/^L?[LKM]\d{3,4}$/.test(RC))) ? true : format, // Radio name
   "MA": ({MA}) => (isString(MA) && MA !== "")? true : format, // Captain's name
@@ -14,7 +14,7 @@ export const validate = {
   "DA": ({DA}) => isValid(parse(DA, "yyyyMMdd", Date.now())) ? true : format, // Date of timestamp
   "TI": ({TI}) => isValid(parse(TI, "HHmm", Date.now())) ? true : format, // Date of timestamp
   "PO": ({PO}) =>  (isString(PO) && PO.length === 5) ? true : format, // Land & port
-  "ZD": () => null, // REVIEW:
+  "ZD": () => true, // REVIEW:
   /* { // Date of departure
     const now = Date.now()
     const date = parse(ZD+ZT, "yyyyMMddHHmm", now)
@@ -23,9 +23,9 @@ export const validate = {
       return isAfter(date, now) && {RE: 151}
     } else return format
   }, */
-  "ZT": () => null,  // REVIEW: Time of departure // validating in ZD
+  "ZT": () => true,  // REVIEW: Time of departure // validating in ZD
   "OB": ({OB}) => (isString(OB) && OB.replace(/ (\d)/g, "$1").split(" ").every(e => /^[A-Z]{3}\d+$/.test(e))) || OB === "" ? true : format,
-  "PD": ({ZD, ZT, PD, PT}) => null, // REVIEW:
+  "PD": ({ZD, ZT, PD, PT}) => true, // REVIEW:
   /* {  // Date of fishing start
     const now = Date.now()
     const departureDate = parse(ZD+ZT, "yyyyMMddHHmm", now)
@@ -34,7 +34,7 @@ export const validate = {
       return isAfter(departureDate, startDate) && {RE: 152}
     } else return format
   }, */
-  "PT": () => null,   // Time of fishing start // validating in PD
+  "PT": () => true,   // Time of fishing start // validating in PD
   // REVIEW: LA and LO format
   "LA": ({LA}) => (isString(LA) && /^[N]\d*\d*$/.test(LA)) ? true : format,   // Latitude
   "LO": ({LO}) => (isString(LO) && /^[E]\d*\d*$/.test(LO)) ? true : format,   // Longitude
@@ -44,7 +44,7 @@ export const validate = {
   "AD": ({AD}) => (isString(AD) && AD.length === 3) ? true : format,
   "XR": ({XR}) => (isString(XR) && XR !== "") ? true : format,
   "QI": ({QI}) => (isNumber(QI) && (QI <= 7 && QI >= 0)) ? true : format, // Fishing permission int[1..7]
-  "TS": () => null,
+  "TS": () => true, // REVIEW;
   "BD": ({BD}) => isValid(parse(BD, "yyyyMMdd")) ? true : format, // Date of timestamp
   "BT": ({BT}) => isValid(parse(BT, "HHmm")) ? true : format, // Time of timestamp
   "ZO": ({ZO}) => (isString(ZO) && ZO.length === 3) ? true : format, // starting zone
@@ -67,7 +67,7 @@ export const validate = {
  * Helper function for validateMessage
  * @param {string} type
  */
-function checkMessage(message){
+export function checkMessage(message){
   const requiredFields = [...fields.common, ...fields[message.TM]]
   console.log(`Checking message`)
   for (let i = 0; i < requiredFields.length; i++) {

@@ -1,4 +1,5 @@
-import { validate } from "../validate"
+import { validate, checkMessage, validateMessage } from "../validate"
+import { messageCreated, messageCreatedError, messageErrorTM } from "../testMessage"
 // Possible Errors
 const e = {
   format: {RE: 102},
@@ -58,13 +59,13 @@ const values = [
       [{PO: "Trondheim"}, e.format],
     ]
   ],
-  [
+  /*[
     "ZD", [
       [{ZD:20194212, ZT: 1000}, e.format],
       //[{ZD:20500101, ZT: 1000}, e.ahead],
       //[{ZD:20190117, ZT: 1258}, true],
     ]
-  ],
+  ],*/
 
   // "PD", "PT"
   [
@@ -221,6 +222,44 @@ describe("Dualog validation", () => {
     describe(`(${k}) function`, () => {
       v.forEach(([arg, expected]) => {
         it(`"${JSON.stringify(arg)}" => ${JSON.stringify(expected)}`, () => expect(validate[k](arg)).toEqual(expected))
+      })
+    })
+  })
+})
+
+describe("function test", () => {
+  describe('checkMessage', () => {
+    it('Expect to return {} when everything is correct', () => {
+      let result = checkMessage(messageCreated)
+      expect(result).toEqual({})
+    })
+    it('Expect to return {RE: 104, RS: NAK} when something is wrong', () => {
+      let result = checkMessage(messageCreatedError)
+      expect(result).toEqual( {
+        "RE": 104,
+        "RS": "NAK"
+      })
+    })
+  })
+  describe('validateMessage', () => {
+    it('Expect to return RS: ACK when everything is correct', () => {
+      let result = validateMessage(messageCreated)
+      expect(result).toEqual({
+        "RS": "ACK",
+      })
+    })
+    it('Expect to return {RE: 104, RS: NAK} when something is wrong', () => {
+      let result = validateMessage(messageCreatedError)
+      expect(result).toEqual( {
+        "RE": 104,
+        "RS": "NAK"
+      })
+    })
+    it('Expect to return {RE: 503, RS: NAK} when TM is wrong', () => {
+      let result = validateMessage(messageErrorTM)
+      expect(result).toEqual( {
+        "RE": 530,
+        "RS": "NAK"
       })
     })
   })
