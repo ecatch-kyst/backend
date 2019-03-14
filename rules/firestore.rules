@@ -6,16 +6,28 @@ service cloud.firestore {
         allow create, update: if isValidMessage(request.resource.data)
         allow delete: if false
       }
+      match /fishingSpots/{fishingSpot}{
+    		allow read,create,update, delete: if isRightUser(userId)
+        allow create, update: if isValidSpot(request.resource.data)
+    }
     }
     match /boats/{boatId}{
     	// can only read boat if boat.userId == logged in user
-      allow read: if resource.data.userId == request.auth.uid
+      allow read: if isRightUser(resource.data.userId)
     }
+    
   }
 }
 
 function isRightUser(uid) {
 	return uid == request.auth.uid
+}
+
+function isValidSpot(m){
+	return
+  	isLatLng(m.latitude) &&
+    isLatLng(m.longitude) &&
+    (m.name != "")
 }
 
 function isValidMessage(m) {
@@ -68,19 +80,17 @@ function isValidDCA(m) {
     m.TS == ""
   )
 }
-
 function isValidPOR(m) {
   return (
-  	//m.hasOnly([""])
+  	m.hasOnly(["timestamp", "TM", "AD", "PO", "portArrival", "OB", "LS", "KG"]) &&
     //isRN(m.RN) && // Message serial number
     //isRC(m.RC) && // Radio name
     //isMA(m.MA) && // Captain's name
     isTimestamp(m.timestamp) && // Time of sent in 
     isAD(m.AD) &&
-    isNA(m.NA) && // Ship's name
     isXR(m.XR) &&
     isPO(m.PO) && // Land & port
-    isTimestamp(m.fishingStart) && // Time of fishing start
+    isTimestamp(m.portArrival) && // Time of fishing start
     isFishAndWeight(m.OB) && // Fish type and weight
     isString(m.LS) && // Name of landing facility
     isFishAndWeight(m.KG) // Same as OB?
