@@ -1,7 +1,7 @@
-import { MESSAGES_FS, functions, USERS_FS, BOATS_FS } from "../firebase"
+import { MESSAGES_FS, functions, USERS_FS, BOATS_FS, firestore } from "../firebase"
 import { dualogStringify, dualogParse } from "./utils"
 import { dualog } from "."
-import { format, parse, setMinutes, setHours } from "date-fns"
+import { format } from "date-fns"
 import * as utm from "utm"
 
 Object.entries = function (obj) { //eslint-disable-line no-extend-native
@@ -19,9 +19,9 @@ function stringifyCatch(c){return Object.entries(c).map(([k, v]) => [k, v].join(
 
 export const message = functions.firestore.document("users/{userId}/messages/{messageId}")
   .onCreate(async (snap, {params: {userId, messageId}}) => {
-
     try {
       let m = snap.data()
+
       console.log(`${m.TM} message created`)
 
       let boat = {}
@@ -31,8 +31,10 @@ export const message = functions.firestore.document("users/{userId}/messages/{me
 
       const RN = user.RN ? user.RN + 1 : 1
 
-      await USERS_FS.doc(userId).update({RN})
-
+      const batch = firestore.batch()
+      batch.update(USERS_FS.doc(userId), {RN})
+      batch.update(MESSAGES_FS(userId).doc(messageId), {RN})
+      await batch.commit()
 
       const boatQuery =  await BOATS_FS.where("userId", "==", userId).get()
       boatQuery.docs.forEach(b => {if (b.exists) boat = b.data()})
@@ -43,20 +45,17 @@ export const message = functions.firestore.document("users/{userId}/messages/{me
         RN,
         AD: "NOR",
         RC: boat.RC,
+        NA: boat.NA,
         MA: m.MA,
         DA: convertDate(m.created),
         TI: convertTime(m.created)
       }
-
-      console.log(`${message} : the message`)
-
 
       switch (m.TM) {
       case "DEP":
         wgs = utm.fromLatLon(m.expectedFishingSpot.latitude, m.expectedFishingSpot.longitude)
         message = {
           ...message,
-          NA: boat.NA,
           XR: boat.XR,
           PO: m.PO,
           ZD: convertDate(m.departure),
@@ -86,6 +85,32 @@ export const message = functions.firestore.document("users/{userId}/messages/{me
       }
         break
 
+      case "DCA": {
+        const {AD, QI, AC, TS, ZO, GE, GP, DU, CA, ME, GS, fishingStart, startFishingSpot, endFishingSpot} = m
+        message = {
+          ...message,
+          XR: boat.XR,
+          AD,
+          QI,
+          AC,
+          TS,
+          BD: format(fishingStart.toDate(), "YYYYMMDD", {awareOfUnicodeTokens: true}),
+          BT: format(fishingStart.toDate(), "HHmm"),
+          ZO,
+          LT: startFishingSpot.latitude, //LT/+63.400
+          LG: startFishingSpot.longitude, //LG/+010.400
+          GE,
+          GP,
+          XT: endFishingSpot.latitude, //Same as LT
+          XG: endFishingSpot.longitude, //Same as LG
+          DU,
+          CA,
+          ME,
+          GS
+        }
+      }
+        break
+
       default:
         break
       }
@@ -97,18 +122,7 @@ export const message = functions.firestore.document("users/{userId}/messages/{me
 
       result = dualogParse(result)
 
-      const HH = parseInt(String(result.TI).slice(0,2), 10)
-      const mm = parseInt(String(result.TI).slice(2,4), 10)
-
-      const dualogTimestamp = setMinutes(setHours(parse(result.DA, "yyyyMMdd", Date.now()), HH), mm)
-
-      await USERS_FS.doc(userId).collection("messages").doc(messageId)
-        .update({
-          RN,
-          acknowledged: result.RS === "ACK",
-          error: result.RE,
-          dualogTimestamp
-        })
+      await USERS_FS.doc(userId).collection("messages").doc(messageId).update({result})
 
       console.log("Message was sent to Dualog. Response: ", result)
 
