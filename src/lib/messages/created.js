@@ -1,4 +1,4 @@
-import { MESSAGES_FS, functions, USERS_FS, BOATS_FS } from "../firebase"
+import { MESSAGES_FS, functions, USERS_FS, BOATS_FS, firestore } from "../firebase"
 import { dualogStringify, dualogParse } from "./utils"
 import { dualog } from "."
 import { format, parse, setMinutes, setHours } from "date-fns"
@@ -29,8 +29,10 @@ export default functions.firestore.document("users/{userId}/messages/{messageId}
 
       const RN = user.RN ? user.RN + 1 : 1
 
-      await USERS_FS.doc(userId).update({RN})
-
+      const batch = firestore.batch()
+      batch.update(USERS_FS.doc(userId), {RN})
+      batch.update(MESSAGES_FS(userId).doc(messageId), {RN})
+      await batch.commit()
 
       const boatQuery =  await BOATS_FS.where("userId", "==", userId).get()
       boatQuery.docs.forEach(b => {if (b.exists) boat = b.data()})
