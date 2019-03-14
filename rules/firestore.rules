@@ -6,16 +6,28 @@ service cloud.firestore {
         allow create, update: if isValidMessage(request.resource.data)
         allow delete: if false
       }
+      match /fishingSpots/{fishingSpot}{
+    		allow read,create,update, delete: if isRightUser(userId)
+        allow create, update: if isValidSpot(request.resource.data)
+    }
     }
     match /boats/{boatId}{
     	// can only read boat if boat.userId == logged in user
-      allow read: if resource.data.userId == request.auth.uid
+      allow read: if isRightUser(resource.data.userId)
     }
+    
   }
 }
 
 function isRightUser(uid) {
 	return uid == request.auth.uid
+}
+
+function isValidSpot(m){
+	return
+  	isLatLng(m.latitude) &&
+    isLatLng(m.longitude) &&
+    (m.name != "")
 }
 
 function isValidMessage(m) {
@@ -44,15 +56,15 @@ function isValidDEP(m) {
 
 function isValidDCA(m) {
   return (
-  	//m.hasOnly([""])
+   	m.hasOnly(["timestamp", "TM", "MV", "AD", "QI", "AC", "fishingStart", "ZO", "startFishingSpot", "GE", "GP", "endFishingSpot", "DU", "CA", "ME", "GS"]) &&
     //isRN(m.RN) && // Message serial number
     //isRC(m.RC) && // Radio name
     //isMA(m.MA) && // Captain's name
     isTimestamp(m.timestamp) && // Time of sent in 
-    isMV(m.MV) &&  // Message version
-    isAD(m.AD) &&
-    isNA(m.NA) && // Ship's name
-    isXR(m.XR) &&
+    //isMV(m.MV) &&  // Message version
+    //isAD(m.AD) &&
+    //isNA(m.NA) && // Ship's name
+    //isXR(m.XR) &&
     isNumber(m.QI) && m.QI <= 7 && m.QI >= 1 && // Fishing permission
     isFishingActivity(m.AC) && // Fishing activity
     isTimestamp(m.fishingStart) && // Time of fishing start
