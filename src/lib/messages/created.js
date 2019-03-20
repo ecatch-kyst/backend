@@ -12,121 +12,119 @@ Object.entries = function (obj) { //eslint-disable-line no-extend-native
     resArray[i] = [ownProps[i], obj[ownProps[i]]]
   return resArray
 }
+
 function convertDate(e){return format(e.toDate(), "yyyyMMdd")}
 function convertTime(e){return format(e.toDate(), "HHmm")}
 function stringifyCatch(c){return Object.entries(c).map(([k, v]) => [k, v].join(" ")).join(" ")}
 
+export default functions.firestore.document("users/{userId}/messages/{messageId}")
+  .onCreate(async (snap, {params: {userId, messageId}, eventId}) => {
+    if(!(await MESSAGES_FS(userId).where("eventId", "==", eventId).get()).empty) return null
+    let m = snap.data()
 
-export const message = functions.firestore.document("users/{userId}/messages/{messageId}")
-  .onCreate(async (snap, {params: {userId, messageId}}) => {
-    try {
-      let m = snap.data()
+    console.log(`${m.TM} message created`)
 
-      console.log(`${m.TM} message created`)
+    let boat = {}
+    let wgs = {}
 
-      let boat = {}
-      let wgs = {}
+    let user = (await USERS_FS.doc(userId).get()).data() // Fetch last serial number
 
-      let user = (await USERS_FS.doc(userId).get()).data() // Fetch last serial number
+    const RN = user.RN ? user.RN + 1 : 1
 
-      const RN = user.RN ? user.RN + 1 : 1
+    const batch = firestore.batch()
+    batch.update(USERS_FS.doc(userId), {RN})
+    batch.update(MESSAGES_FS(userId).doc(messageId), {RN, eventId})
+    await batch.commit()
 
-      const batch = firestore.batch()
-      batch.update(USERS_FS.doc(userId), {RN})
-      batch.update(MESSAGES_FS(userId).doc(messageId), {RN})
-      await batch.commit()
+    const boatQuery =  await BOATS_FS.where("userId", "==", userId).get()
+    boatQuery.docs.forEach(b => {if (b.exists) boat = b.data()})
 
-      const boatQuery =  await BOATS_FS.where("userId", "==", userId).get()
-      boatQuery.docs.forEach(b => {if (b.exists) boat = b.data()})
+    let message = {
+      TM: m.TM,
+      RN,
+      AD: "NOR",
+      RC: boat.RC,
+      NA: boat.NA,
+      MA: m.MA,
+      DA: convertDate(m.created),
+      TI: convertTime(m.created)
+    }
 
+    switch (m.TM) {
+    case "DEP":
+      wgs = utm.fromLatLon(m.expectedFishingSpot.latitude, m.expectedFishingSpot.longitude)
+      message = {
+        ...message,
+        XR: boat.XR,
+        PO: m.PO,
+        ZD: convertDate(m.departure),
+        ZT: convertTime(m.departure),
+        PD: convertDate(m.expectedFishingStart),
+        PT: convertTime(m.expectedFishingStart),
+        LA: "N"+wgs.northing,
+        LO: "E"+wgs.easting,
+        AC: m.AC,
+        DS: m.DS,
+        OB: stringifyCatch(m.OB)
+      }
+      break
 
-      let message = {
-        TM: m.TM,
-        RN,
-        AD: "NOR",
-        RC: boat.RC,
+    case "DCA": {
+      const {AD, QI, AC, TS, ZO, GE, GP, DU, CA, ME, GS, fishingStart, startFishingSpot, endFishingSpot} = m
+      message = {
+        ...message,
+        XR: boat.XR,
+        AD,
+        QI,
+        AC,
+        BD: convertDate(fishingStart),
+        BT: convertTime(fishingStart),
+        ZO,
+        LT: startFishingSpot.latitude.toString(), //LT/+63.400
+        LG: startFishingSpot.longitude.toString(), //LG/+010.400
+        GE,
+        GP,
+        XT: endFishingSpot.latitude.toString(), //Same as LT
+        XG: endFishingSpot.longitude.toString(), //Same as LG
+        DU,
+        CA: stringifyCatch(CA),
+        GS
+      }
+      if(["OTB", "OTM", "SSC", "GEN", "TBS"].includes(GE)){
+        message = {...message, ME}
+      }
+    }
+      break
+
+    case "POR": {
+      const {PO, portArrival, LS,} = m
+      message = {
+        ...message,
         NA: boat.NA,
-        MA: m.MA,
-        DA: convertDate(m.created),
-        TI: convertTime(m.created)
+        XR: boat.NA,
+        PO,
+        PD: convertDate(portArrival),
+        PT: convertTime(portArrival),
+        OB: stringifyCatch(m.OB),
+        LS,
+        KG: stringifyCatch(m.KG)
       }
+    }
+      break
 
-      switch (m.TM) {
-      case "DEP":
-        wgs = utm.fromLatLon(m.expectedFishingSpot.latitude, m.expectedFishingSpot.longitude)
-        message = {
-          ...message,
-          XR: boat.XR,
-          PO: m.PO,
-          ZD: convertDate(m.departure),
-          ZT: convertTime(m.departure),
-          PD: convertDate(m.expectedFishingStart),
-          PT: convertTime(m.expectedFishingStart),
-          LA: "N"+wgs.northing,
-          LO: "E"+wgs.easting,
-          AC: m.AC,
-          DS: m.DS,
-          OB: stringifyCatch(m.OB)
-        }
-        break
-      case "POR": {
-        const {PO, portArrival, LS,} = m
-        message = {
-          ...message,
-          NA: boat.NA,
-          XR: boat.NA,
-          PO,
-          PD: convertDate(portArrival),
-          PT: convertTime(portArrival),
-          OB: stringifyCatch(m.OB),
-          LS,
-          KG: stringifyCatch(m.KG)
-        }
-      }
-        break
+    default:
+      break
+    }
 
-      case "DCA": {
-        const {AD, QI, AC, TS, ZO, GE, GP, DU, CA, ME, GS, fishingStart, startFishingSpot, endFishingSpot} = m
-        message = {
-          ...message,
-          XR: boat.XR,
-          AD,
-          QI,
-          AC,
-          TS,
-          BD: format(fishingStart.toDate(), "YYYYMMDD", {awareOfUnicodeTokens: true}),
-          BT: format(fishingStart.toDate(), "HHmm"),
-          ZO,
-          LT: startFishingSpot.latitude, //LT/+63.400
-          LG: startFishingSpot.longitude, //LG/+010.400
-          GE,
-          GP,
-          XT: endFishingSpot.latitude, //Same as LT
-          XG: endFishingSpot.longitude, //Same as LG
-          DU,
-          CA,
-          ME,
-          GS
-        }
-      }
-        break
+    let result = await dualog({
+      body: {PlainTextNaf: dualogStringify(message)}
+    })
 
-      default:
-        break
-      }
+    result = dualogParse(result)
 
+    await USERS_FS.doc(userId).collection("messages").doc(messageId).update({result})
 
-      let result = await dualog({
-        body: {PlainTextNaf: dualogStringify(message)}
-      })
-
-      result = dualogParse(result)
-
-      await USERS_FS.doc(userId).collection("messages").doc(messageId).update({result})
-
-      console.log("Message was sent to Dualog. Response: ", result)
-
-    } catch (error) {console.log(error)}
+    console.log("Message was sent to Dualog. Response: ", result)
 
     return null
   })
