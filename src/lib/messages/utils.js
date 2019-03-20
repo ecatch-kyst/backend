@@ -23,6 +23,6 @@ export function dualogParse(string) {
       .replace(/\/\/SR\/\/(.*)\/\/ER\/\//, "$1")
       .split("//")
       .map(e => e.split("/"))
-      .map(([k, v]) => [k, parseInt(v, 10) || v])
+      .map(([k, v]) => [k, isNaN(v) ? (v || "") : parseFloat(v, 10)])
   )
 }
