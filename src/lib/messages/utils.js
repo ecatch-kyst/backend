@@ -21,8 +21,8 @@ export function dualogParse(string) {
   return Object.fromEntries(
     string
       .replace(/\/\/SR\/\/(.*)\/\/ER\/\//, "$1")
-      .split("//")
+      .split(/\/\/(?=[A-Z]{2})/)
       .map(e => e.split("/"))
-      .map(([k, v]) => [k, isNaN(v) ? (v || "") : parseFloat(v, 10)])
+      .map(([k, v]) => [k, (isNaN(v) || v === "") ? (v || "") : parseFloat(v, 10)])
   )
 }
