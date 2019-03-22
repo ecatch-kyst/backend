@@ -80,12 +80,12 @@ export default functions.firestore.document("users/{userId}/messages/{messageId}
         BD: convertDate(fishingStart),
         BT: convertTime(fishingStart),
         ZO,
-        LT: startFishingSpot.latitude.toString(), //LT/+63.400
-        LG: startFishingSpot.longitude.toString(), //LG/+010.400
+        LT: `+${startFishingSpot.latitude.toString()}`, //LT/+63.400
+        LG: `+${startFishingSpot.longitude.toString()}`, //LG/+010.400
         GE,
         GP,
-        XT: endFishingSpot.latitude.toString(), //Same as LT
-        XG: endFishingSpot.longitude.toString(), //Same as LG
+        XT: `+${endFishingSpot.latitude.toString()}`, //Same as LT
+        XG: `+${endFishingSpot.longitude.toString()}`, //Same as LG
         DU,
         CA: stringifyCatch(CA),
         GS
@@ -115,7 +115,7 @@ export default functions.firestore.document("users/{userId}/messages/{messageId}
     default:
       break
     }
-
+    console.log(`Sending ${dualogStringify(message)} to Dualog`)
     let result = await dualog({
       body: {PlainTextNaf: dualogStringify(message)}
     })
@@ -124,7 +124,7 @@ export default functions.firestore.document("users/{userId}/messages/{messageId}
 
     await USERS_FS.doc(userId).collection("messages").doc(messageId).update({result})
 
-    console.log("Message was sent to Dualog. Response: ", result)
+    console.log(`Response from Dualog: ${JSON.stringify(result)}`)
 
     return null
   })
