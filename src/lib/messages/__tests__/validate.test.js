@@ -1,4 +1,5 @@
-import { validate } from "../validate"
+import { validate, checkMessage, validateMessage } from "../validate"
+import { messageCreated, messageCreatedError, messageErrorTM } from "../testMessage"
 // Possible Errors
 const e = {
   format: {RE: 102},
@@ -32,34 +33,39 @@ const values = [
   [
     "MA", [
       [{MA: 1337}, e.format],
+      [{MA: ""}, e.format],
       [{MA: "Dag Frode"}, false],
       [{MA: "Ola Nordmann"}, false],
     ]
   ],
   [
     "DA", [
-      [{DA: "20000212"}, false]
+      [{DA: "20000212"}, false],
+      [{DA: "20021"}, e.format]
     ]
   ],
-  /* [
+  [
     "TI", [
-      []
+      [{TI: "1010"}, false],
+      [{TI: "10102"}, e.format],
+      [{TI: "0000"}, false],
+      [{TI: "-0000"}, e.format],
     ]
-  ], */
+  ],
   [
     "PO", [
       [{PO: 123}, e.format],
       [{PO: "NOTRD"}, false],
-      [{PO: "Trondheim"}, false],
+      [{PO: "Trondheim"}, e.format],
     ]
   ],
-  [
+  /*[
     "ZD", [
       [{ZD:20194212, ZT: 1000}, e.format],
       //[{ZD:20500101, ZT: 1000}, e.ahead],
       //[{ZD:20190117, ZT: 1258}, false],
     ]
-  ],
+  ],*/
 
   // "PD", "PT"
   [
@@ -126,7 +132,7 @@ const values = [
       [{QI: 4}, false]
     ]
   ],
-  //"BD", "BT"
+  //"BD", "BT" samme som DA og TI så sjekken for DA TI er nok
   [
     "ZO", [
       [{ZO:-1}, e.format],
@@ -144,17 +150,22 @@ const values = [
   [
     "GE", [
       [{GE: "2"}, e.format],
+      [{GE: 0}, e.format],
+      [{GE: -1}, e.format],
       [{GE: 2}, false],
       [{GE: 3}, false]
     ]
   ],
   [
     "GP", [
-      [{GP:-1}, e.format],
+      [{GP: -1}, e.format],
       [{GP: "2"}, e.format],
       [{GP: 10}, e.format],
       [{GP: 1}, false],
-      [{GP: 4}, false]
+      [{GP: 4}, false],
+      [{GP: 7}, e.format],
+      [{GP: 0}, e.format],
+      [{GP: 6}, false]
     ]
   ],
   [
@@ -186,6 +197,7 @@ const values = [
     "GS", [
       [{GS: "2"}, e.format],
       [{GS: 0}, e.format],
+      [{GS: 5}, e.format],
       [{GS: 1}, false],
       [{GS: 4}, false]
     ]
@@ -195,7 +207,9 @@ const values = [
       [{LS: ""}, e.format],
       [{LS: 0}, e.format],
       [{LS: "PNA"}, false],
-      [{LS: "KNFEA"}, false]
+      [{LS: "KNFEA"}, false],
+      [{LS: "123456789012345678901234567890123456789012345678901234567890"}, false],
+      [{LS: "1234567890123456789012345678901234567890123456789012345678901"}, e.format]
     ]
   ],
   [
@@ -208,6 +222,44 @@ describe("Dualog validation", () => {
     describe(`(${k}) function`, () => {
       v.forEach(([arg, expected]) => {
         it(`"${JSON.stringify(arg)}" => ${JSON.stringify(expected)}`, () => expect(validate[k](arg)).toEqual(expected))
+      })
+    })
+  })
+})
+
+describe("function test", () => {
+  describe('checkMessage', () => {
+    it('Expect to return {} when everything is correct', () => {
+      let result = checkMessage(messageCreated)
+      expect(result).toEqual({})
+    })
+    it('Expect to return {RE: 104, RS: NAK} when something is wrong', () => {
+      let result = checkMessage(messageCreatedError)
+      expect(result).toEqual( {
+        "RE": 104,
+        "RS": "NAK"
+      })
+    })
+  })
+  describe('validateMessage', () => {
+    it('Expect to return RS: ACK when everything is correct', () => {
+      let result = validateMessage(messageCreated)
+      expect(result).toEqual({
+        "RS": "ACK",
+      })
+    })
+    it('Expect to return {RE: 104, RS: NAK} when something is wrong', () => {
+      let result = validateMessage(messageCreatedError)
+      expect(result).toEqual( {
+        "RE": 104,
+        "RS": "NAK"
+      })
+    })
+    it('Expect to return {RE: 503, RS: NAK} when TM is wrong', () => {
+      let result = validateMessage(messageErrorTM)
+      expect(result).toEqual( {
+        "RE": 530,
+        "RS": "NAK"
       })
     })
   })

@@ -3,6 +3,22 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [1.0.0-beta4] - 2019-03-25
+### Added
+- POR message created and being sent to Dualog mock
+- mock boat created for each registered user
+- when deleting a user, delete its boat and corresponding messages
+
+### Fixed
+- Several bugs with message creation
+- Several bugs with valdation of fields
+
+### Changed
+- Firestore rules modified to support POR messages
+
+### Fixed
+- RN is now added to messages
+
 ## [1.0.0-beta2] - 2019-02-26
 ### Added
 - DEP message is handled in every step (firestore, cloud function and dualog mock)
