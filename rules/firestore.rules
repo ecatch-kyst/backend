@@ -9,7 +9,11 @@ service cloud.firestore {
       match /fishingSpots/{fishingSpot}{
     		allow read,create,update, delete: if isRightUser(userId)
         allow create, update: if isValidSpot(request.resource.data)
-    }
+      }
+      match /ports/{ports}{
+    		allow read,create,update, delete: if isRightUser(userId)
+        allow create, update: if isValidPort(request.resource.data)
+    	}
     }
     match /boats/{boatId}{
     	// can only read boat if boat.userId == logged in user
@@ -28,6 +32,14 @@ function isValidSpot(m){
   	isLatLng(m.latitude) &&
     isLatLng(m.longitude) &&
     (m.name != "")
+}
+
+function isValidPort(m){
+	return
+  	isLatLng(m.latitude) &&
+    isLatLng(m.longitude) &&
+    isPort(m.value) &&
+    (m.label != "")
 }
 
 function isValidMessage(m) {
