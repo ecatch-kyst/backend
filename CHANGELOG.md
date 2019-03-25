@@ -7,6 +7,10 @@ All notable changes to this project will be documented in this file.
 - mock boat created for each registered user
 - when deleting a user, delete its boat and corresponding messages
 
+### Fixed
+- Several bugs with message creation
+- Several bugs with valdation of fields
+
 ### Changed
 - Firestore rules modified to support POR messages
 
