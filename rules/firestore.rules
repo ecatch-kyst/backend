@@ -14,6 +14,22 @@ service cloud.firestore {
     		allow read,create,update, delete: if isRightUser(userId)
         allow create, update: if isValidPort(request.resource.data)
     	}
+      match /tools/{tools}{
+    		allow read,create,update, delete: if isRightUser(userId)
+        allow create, update: if isFishingTool(request.resource.data)
+    	}
+      match /activities/{activities}{
+    		allow read,create,update, delete: if isRightUser(userId)
+    	}
+      match /species/{species}{
+    		allow read,create,update, delete: if isRightUser(userId)
+    	}
+      match /fishingPermit/{fishingPermit}{
+    		allow read,create,update, delete: if isRightUser(userId)
+    	}
+      match /ZO/{ZO}{
+    		allow read,create,update, delete: if isRightUser(userId)
+    	}
     }
     match /boats/{boatId}{
     	// can only read boat if boat.userId == logged in user
@@ -224,7 +240,7 @@ function isFishingTool(t){
     "FPO",// Teiner    Traps - pots
     "GEN",// Garn    Gillnets and entangling nets
     "DRB",// Skrape, mekanisert    Harvesting machines (not specified)
-    "LL ",// Liner    Longlines (not specified)
+    "LLS",// Liner    Longlines (not specified)
     "OTB",// Bunntrål, otter    Bottom trawls - otter trawls
     "TBS",// Bunntrål, reker    Bottom trawls - prawns
     "PS1",// Snurpenot/ringnot    Surrounding nets-purse seines
