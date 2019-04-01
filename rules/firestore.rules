@@ -14,11 +14,11 @@ service cloud.firestore {
     		allow read,create,update, delete: if isRightUser(userId)
         allow create, update: if isValidPort(request.resource.data)
     	}
-      match /tools/{tools}{
+      match /fishinggear/{fishinggear}{
     		allow read,create,update, delete: if isRightUser(userId)
         allow create, update: if isFishingTool(request.resource.data)
     	}
-      match /activities/{activities}{
+      match /activity/{activity}{
     		allow read,create,update, delete: if isRightUser(userId)
     	}
       match /species/{species}{
