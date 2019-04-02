@@ -1,6 +1,6 @@
-import messageCreated from "./created"
+import messageCreated, {automaticDCA} from "./created"
 import dualog from "./mockDualog"
 
 export {
-  dualog, messageCreated
+  dualog, messageCreated, automaticDCA
 }

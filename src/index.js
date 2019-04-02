@@ -3,4 +3,4 @@ import * as messages from './lib/messages'
 
 export const {userCreated, userDeleted} = user
 
-export const {messageCreated} = messages
+export const {messageCreated, automaticDCA} = messages
