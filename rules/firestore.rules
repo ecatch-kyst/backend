@@ -14,7 +14,7 @@ service cloud.firestore {
     		allow read,create,update, delete: if isRightUser(userId)
         allow create, update: if isValidPort(request.resource.data)
     	}
-      match /fishinggear/{fishinggear}{
+      match /fishingGear/{fishingGear}{
     		allow read,create,update, delete: if isRightUser(userId)
         allow create, update: if isFishingTool(request.resource.data)
     	}
