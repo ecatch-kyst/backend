@@ -2,6 +2,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+### Added
+ - possible to save favorite choices in dropdown
 
 ## [1.0.0-beta4] - 2019-03-25
 ### Added
