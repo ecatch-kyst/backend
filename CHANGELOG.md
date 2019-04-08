@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 ### Added
  - possible to save favorite choices in dropdown
+ 
+### Removed
+ - GS validation [#29](https://github.com/ecatch-kyst/backend/issues/29)
 
 ## [1.0.0-beta4] - 2019-03-25
 ### Added
