@@ -1,6 +1,7 @@
 service cloud.firestore {
   match /databases/{database}/documents {
     match /users/{userId} {
+      allow read, create, update: if isRightUser(userId)
       match /messages/{message} {
         allow read, create, update: if isRightUser(userId)
         allow create, update: if isValidMessage(request.resource.data)
@@ -67,8 +68,8 @@ function isValidMessage(m) {
 
 function isValidDEP(m) {
   return (
-  	m.hasOnly(["created", "TM", "timestamp", "MA", "AC", "DS", "PO", "departure", "expectedFishingSpot", "expectedFishingStart", "OB"]) &&
-    //isRN(m.RN) && // Message serial number
+  	m.hasOnly(["created", "TM", "RN", "timestamp", "MA", "AC", "DS", "PO", "departure", "expectedFishingSpot", "expectedFishingStart", "OB"]) &&
+    isRN(m.RN) && // Message serial number
     //isRC(m.RC) && // Radio name
     //isMA(m.MA) && // Captain's name
     isTimestamp(m.timestamp) && // Time of sent in 
@@ -84,8 +85,8 @@ function isValidDEP(m) {
 
 function isValidDCA(m) {
   return (
-   	m.hasOnly(["timestamp", "TM", "MV", "AD", "QI", "AC", "fishingStart", "ZO", "startFishingSpot", "GE", "GP", "endFishingSpot", "DU", "CA", "ME", "GS"]) &&
-    //isRN(m.RN) && // Message serial number
+   	m.hasOnly(["timestamp", "TM", "RN", "MV", "AD", "QI", "AC", "fishingStart", "ZO", "startFishingSpot", "GE", "GP", "endFishingSpot", "DU", "CA", "ME", "GS"]) &&
+    isRN(m.RN) && // Message serial number
     //isRC(m.RC) && // Radio name
     //isMA(m.MA) && // Captain's name
     isTimestamp(m.timestamp) && // Time of sent in 
@@ -110,8 +111,8 @@ function isValidDCA(m) {
 }
 function isValidPOR(m) {
   return (
-  	m.hasOnly(["timestamp", "TM", "AD", "PO", "portArrival", "OB", "LS", "KG"]) &&
-    //isRN(m.RN) && // Message serial number
+  	m.hasOnly(["timestamp", "TM", "RN", "AD", "PO", "portArrival", "OB", "LS", "KG"]) &&
+    isRN(m.RN) && // Message serial number
     //isRC(m.RC) && // Radio name
     //isMA(m.MA) && // Captain's name
     isTimestamp(m.timestamp) && // Time of sent in 
