@@ -16,6 +16,7 @@ Object.entries = function (obj) { //eslint-disable-line no-extend-native
 function convertDate(e){return format(e.toDate(), "yyyyMMdd")}
 function convertTime(e){return format(e.toDate(), "HHmm")}
 function stringifyCatch(c){return Object.entries(c).map(([k, v]) => [k, v].join(" ")).join(" ")}
+function prependSign(number){return `${Math.sign(number) > 0 ? "+" : ""}${number}` }
 
 export default functions.firestore.document("users/{userId}/messages/{messageId}")
   .onCreate(async (snap, {params: {userId, messageId}, eventId}) => {
@@ -63,7 +64,7 @@ export default functions.firestore.document("users/{userId}/messages/{messageId}
       break
 
     case "DCA": {
-      const {AD, QI, AC, TS, ZO, GE, GP, DU, CA, ME, GS, fishingStart, startFishingSpot, endFishingSpot} = m
+      const {AD, QI, AC, TS, ZO, GE, GP, DU, ME, GS, fishingStart, startFishingSpot, endFishingSpot} = m
       message = {
         ...message,
         XR: boat.XR,
@@ -73,16 +74,16 @@ export default functions.firestore.document("users/{userId}/messages/{messageId}
         BD: convertDate(fishingStart),
         BT: convertTime(fishingStart),
         ZO,
-        LT: `+${startFishingSpot.latitude.toString()}`, //LT/+63.400
-        LG: `+${startFishingSpot.longitude.toString()}`, //LG/+010.400
+        LT: prependSign(startFishingSpot.latitude), //LT/+63.400
+        LG: prependSign(startFishingSpot.longitude), //LG/+010.400
         GE,
         GP,
-        XT: `+${endFishingSpot.latitude.toString()}`, //Same as LT
-        XG: `+${endFishingSpot.longitude.toString()}`, //Same as LG
+        XG: prependSign(endFishingSpot.longitude), //Same as LG
+        XT: prependSign(endFishingSpot.latitude), //Same as LT
         DU,
-        CA: stringifyCatch(CA),
         GS
       }
+      if(m.CA) m.CA = stringifyCatch(m.CA)
       if(["OTB", "OTM", "SSC", "GEN", "TBS"].includes(GE)){
         message = {...message, ME}
       }
