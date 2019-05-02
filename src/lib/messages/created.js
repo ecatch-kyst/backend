@@ -27,21 +27,14 @@ export default functions.firestore.document("users/{userId}/messages/{messageId}
     let boat = {}
     let wgs = {}
 
-    let user = (await USERS_FS.doc(userId).get()).data() // Fetch last serial number
-
-    const RN = user.RN ? user.RN + 1 : 1
-
-    const batch = firestore.batch()
-    batch.update(USERS_FS.doc(userId), {RN})
-    batch.update(MESSAGES_FS(userId).doc(messageId), {RN, eventId})
-    await batch.commit()
+    await MESSAGES_FS(userId).doc(messageId).update({eventId})
 
     const boatQuery =  await BOATS_FS.where("userId", "==", userId).get()
     boatQuery.docs.forEach(b => {if (b.exists) boat = b.data()})
 
     let message = {
       TM: m.TM,
-      RN,
+      RN: m.RN,
       AD: "NOR",
       RC: boat.RC,
       NA: boat.NA,
