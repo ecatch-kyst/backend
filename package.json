@@ -24,7 +24,7 @@
     "@google-cloud/functions-emulator": "^1.0.0-beta.5",
     "babel-eslint": "^10.0.1",
     "eslint": "^5.12.1",
-    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-promise": "4.1.1",
     "firebase-bolt": "^0.8.4",
     "firebase-tools": "^6.3.1",
     "jest": "^24.1.0",
